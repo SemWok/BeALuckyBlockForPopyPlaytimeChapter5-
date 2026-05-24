@@ -1,0 +1,16 @@
+-- YOUTUBE: SemWok (Permanent Stealth Replace)
+local targetUrl = "https://raw.githubusercontent.com/RILZHUB/Rilzzhub/refs/heads/main/BeaLuckyBlockForPoppyPlaytimeChapter5!"
+
+-- Hooking metatable buat ganti teks secara instan sebelum render
+local oldIndex
+oldIndex = hookmetamethod(game, "__newindex", function(self, index, value)
+    if tostring(index) == "Text" then
+        if tostring(value):find("Rilz Hub") or tostring(value):find("Credit") then
+            value = "YOUTUBE: SemWok"
+        end
+    end
+    return oldIndex(self, index, value)
+end)
+
+-- Jalankan script utama
+loadstring(game:HttpGet(targetUrl))()
