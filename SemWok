@@ -1,16 +1,60 @@
--- YOUTUBE: SemWok (Permanent Stealth Replace)
+-- ==========================================================
+-- YOUTUBE: SEMWOK (STEALTH & DYNAMIC TITLE - AUTO SYNC)
+-- ==========================================================
 local targetUrl = "https://raw.githubusercontent.com/RILZHUB/Rilzzhub/refs/heads/main/BeaLuckyBlockForPoppyPlaytimeChapter5!"
 
--- Hooking metatable buat ganti teks secara instan sebelum render
+-- 1. Stealth Hooking
 local oldIndex
 oldIndex = hookmetamethod(game, "__newindex", function(self, index, value)
     if tostring(index) == "Text" then
         if tostring(value):find("Rilz Hub") or tostring(value):find("Credit") then
-            value = "YOUTUBE: SemWok"
+            value = "YOUTUBE: SEMWOK"
         end
     end
     return oldIndex(self, index, value)
 end)
 
--- Jalankan script utama
+-- 2. Jalankan script utama
 loadstring(game:HttpGet(targetUrl))()
+
+-- 3. Monitoring UI (Sync Judul dan Watermark)
+task.spawn(function()
+    local CG = game:GetService("CoreGui")
+    
+    while task.wait(0.3) do
+        local targetHub = CG:FindFirstChild("MBG_Driver_Hub") or CG:FindFirstChild("RilzHub")
+        if targetHub then
+            local frame = targetHub:FindFirstChildWhichIsA("Frame", true)
+            local titleLabel = frame and frame:FindFirstChildWhichIsA("TextLabel", true)
+            
+            -- Cari tombol segitiga (expand/collapse)
+            local expandBtn = nil
+            for _, v in pairs(frame:GetDescendants()) do
+                if v:IsA("TextButton") and (v.Text == "▼" or v.Text == "▲" or v.Text == "") then
+                    -- Kita deteksi berdasarkan ukuran atau posisi tombol expand yang biasanya kecil
+                    if v.Size.X.Offset <= 30 then
+                        expandBtn = v
+                        break
+                    end
+                end
+            end
+
+            if titleLabel and frame then
+                -- Cek apakah menu sedang terbuka berdasarkan ukuran frame
+                -- Biasanya kalau menu tutup, tingginya kecil (misal 42)
+                if frame.Size.Y.Offset <= 50 then
+                    titleLabel.Text = "<b>YOUTUBE: SEMWOK</b>"
+                else
+                    titleLabel.Text = "<b>LUCKY BLOCK | PLAYTIME PLCPY</b>"
+                end
+            end
+
+            -- Watermark bawah (Always YouTube: SemWok)
+            for _, v in pairs(targetHub:GetDescendants()) do
+                if v:IsA("TextLabel") and v.Text:lower():find("semwok") and v.Text ~= "YouTube: SemWok" and v ~= titleLabel then
+                    v.Text = "YouTube: SemWok"
+                end
+            end
+        end
+    end
+end)
